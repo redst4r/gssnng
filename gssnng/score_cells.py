@@ -40,7 +40,7 @@ def with_gene_sets(
     :param score_method: which scoring method to use
     :param method_params: specific params for each method.
     :param samp_neighbors: number of neighbors to sample
-    :param noise_trials: number of noisy samples to create, integer
+    :param noise_trials: number of noisy samples to create after sampling, integer
     :param ranked: whether the gene expression counts should be rank ordered
     :param cores: number of parallel processes to work through groupby groups
 
