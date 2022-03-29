@@ -10,6 +10,7 @@ from gssnng.score_funs import scorefun
 from gssnng.gene_sets import genesets
 from typing import Union
 from multiprocessing import Pool
+import logging
 
 
 def with_gene_sets(
@@ -184,6 +185,8 @@ def _proc_data(
         )
     # how about lambda x: _score_all_cells_all_sets(x, gs_obj, score_method, method_params, noise_trials, ranked)
     # not sure if that works with parallel, due to pickling. might have to be a proper function
+    logging.info("Starting parallel processing")
+
     with Pool(processes=cores) as pool:
 
         res0 = pool.starmap_async(_score_all_cells_all_sets, arglist).get()

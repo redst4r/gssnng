@@ -105,13 +105,17 @@ def nn_smoothing(X, adata, mode, samp_neighbors, add_diag=True):
     assert X.shape[0] == adata.shape[0], "cell number mismatch"
     logging.info("creating smoothing matrix")
     smoothing_mat = get_smoothing_matrix(adata, mode, add_diag)
+    logging.info("done creating smoothing matrix")
 
     if samp_neighbors > 0:
         # randomly set some edges/neighbours to zero
         # experimental and pretty slow!
         logging.info("creating random mask")
         smoothing_mat = random_mask_a_nn_matrix(smoothing_mat, samp_neighbors)
+        logging.info("done creating random mask")
 
+    logging.info("Smoothing signal")
     smooth_signals = smoothing_mat @ X
+    logging.info("Done Smoothing signal")
 
     return smooth_signals
