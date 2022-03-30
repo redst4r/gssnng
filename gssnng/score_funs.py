@@ -143,14 +143,39 @@ def singscore(x, su, sig_len, norm_method, gs):
     return(norm_up)
 
 
+def my_ssgsea(x, su, sig_len, omega, gs):
+    gene_set = set(gs)
+
+    #first sort by absolute expression value, starting with the highest expressed genes first
+    xsorted = x.sort_values(axis=0, ascending=False, inplace=False)
+    keys_sorted = xsorted.index.tolist()
+
+    nom_vector = np.zeros(len(x))
+    for t in range(len(x)):
+        nom_vector[t] = t**omega if keys_sorted[t] in gene_set else 0
+
+    # Fi is the cumululative divided by the full sum
+    Fi = np.cumsum(nom_vector)
+    Fi = Fi / Fi[-1]
+
+    # now for the term summarizing the genes NOT in the vector
+    NO_vector = np.zeros(len(x))
+    for t in range(len(x)):
+        NO_vector[t] = 1 if not keys_sorted[t] in gene_set else 0
+    Fi_not = np.cumsum(NO_vector) / (len(x) - len(gene_set))
+
+    return np.max(Fi - Fi_not)
+
+
 def ssgsea(x, su, sig_len, omega, gs):
     """
     The ssGSEA method
+    see https://www.pathwaycommons.org/guide/primers/data_analysis/gsea/ for some details
 
     :param x: the pandas data frame of ranks, all genes
     :param su: the ranked list of genes *IN* the gene set
     :param sig_len_up: the number of expressed genes matched in the set
-    :param norm_method: 'standard or theoretical' # from singscore
+    :param omega: exponent of the scores, see above link (its called alpha there)
     :param score_up: is the rank up or down?  True or False
     :param gene_set: gene set object
 
@@ -247,6 +272,9 @@ def method_selector(gs, x, exprcol, geneset_genes, method, method_params):
         #x, su, sig_len, omega, gene_set
         res0 = ssgsea(exprdat, su, sig_len, method_params['omega'], geneset_genes)
 
+    elif method == 'my_ssgsea':
+        #x, su, sig_len, omega, gene_set
+        res0 = my_ssgsea(exprdat, su, sig_len, method_params['omega'], geneset_genes)
     else:
         return(np.nan)
 
@@ -304,4 +332,3 @@ def scorefun(gs,
         res0 = np.nan
 
     return(res0)
-
